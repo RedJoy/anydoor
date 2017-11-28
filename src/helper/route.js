@@ -4,7 +4,7 @@ const Handlebars = require('handlebars');
 const promisify = require('util').promisify; //去除异步调用
 const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
-const config = require('../config/defaultConfig.js');
+// const config = require('../config/defaultConfig.js');
 const mime = require('./mime.js');
 const compress = require('./compress.js');
 const range = require('./range');
@@ -14,7 +14,7 @@ const tplPath = path.join(__dirname,'../templete/dir.tpl');
 const source = fs.readFileSync(tplPath);
 const templete = Handlebars.compile(source.toString());
 
-module.exports = async function (req,res,filePath) {
+module.exports = async function (req,res,filePath,config) {
 	try {
 		const stats = await stat(filePath);
 		// 如果是文件
