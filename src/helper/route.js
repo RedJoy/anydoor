@@ -7,6 +7,7 @@ const readdir = promisify(fs.readdir);
 const config = require('../config/defaultConfig.js');
 const mime = require('./mime.js');
 const compress = require('./compress.js');
+const range = require('./range');
 
 const tplPath = path.join(__dirname,'../templete/dir.tpl');
 const source = fs.readFileSync(tplPath);
@@ -18,11 +19,19 @@ module.exports = async function (req,res,filePath) {
 		// 如果是文件
 		if(stats.isFile()) {
 			const contentType = mime(filePath);
-			res.statusCode = 200;
 			res.setHeader('Content-Type','text/plain');
 
+			let rs;
+			const {code, start, end} = range(stats.size ,req,res);
+			if(code == 200 ) {
+				res.statusCode = 200;
+				rs = fs.createReadStream(filePath);
+			}else {
+				res.statusCode = 206;
+				rs = fs.createReadStream(filePath, {start,end});
+			}
+
 			//压缩文件
-			let rs = fs.createReadStream(filePath);
 			if(filePath.match(config.compress)) {
 				rs = compress(rs, req, res);
 			}
