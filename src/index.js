@@ -1,5 +1,9 @@
 const yargs = require('yargs'); 
 const Server = require('./app');
+/* 
+	bin/anydoor -p 8000  调用方法传递参数
+	chmod +x bin/anydoor 
+*/
 
 const argv = yargs
 	.usage('anywhere [options]')
@@ -25,3 +29,4 @@ const argv = yargs
 
 const server = new Server(argv);
 server.start();
+
