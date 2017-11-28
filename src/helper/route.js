@@ -6,6 +6,7 @@ const stat = promisify(fs.stat);
 const readdir = promisify(fs.readdir);
 const config = require('../config/defaultConfig.js');
 const mime = require('./mime.js');
+const compress = require('./compress.js');
 
 const tplPath = path.join(__dirname,'../templete/dir.tpl');
 const source = fs.readFileSync(tplPath);
@@ -19,8 +20,15 @@ module.exports = async function (req,res,filePath) {
 			const contentType = mime(filePath);
 			res.statusCode = 200;
 			res.setHeader('Content-Type','text/plain');
-			fs.createReadStream(filePath).pipe(res); //用流的方式读写
-		}else if (stats.isDirectory()) {
+
+			//压缩文件
+			let rs = fs.createReadStream(filePath);
+			if(filePath.match(config.compress)) {
+				rs = compress(rs, req, res);
+			}
+			rs.pipe(res); //用流的方式读写
+
+		}else if (stats.isDirectory()) {  //文件夹
 			const files = await readdir(filePath);
 			res.statusCode = 200;
 			res.setHeader('Content-Type','text/html');
@@ -28,12 +36,7 @@ module.exports = async function (req,res,filePath) {
 			const data = {
 				title: path.basename(filePath),
 				dir: dir ? `/${dir}` : '',
-				files: files.map( file => {
-					return {
-						file,
-						icon: mime(file)
-					}
-				})
+				files
 			};
 			res.end(templete(data));
 

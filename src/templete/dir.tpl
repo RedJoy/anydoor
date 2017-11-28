@@ -20,7 +20,7 @@
 <body>
 <!-- use handlebars templete -->
 {{#each files}}
-	<a href="{{../dir}}/{{this}}">【{{icon}}】{{file}}</a>
+	<a href="{{../dir}}/{{this}}">{{this}}</a>
 {{/each}}
 </body>
 </html>
